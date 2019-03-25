@@ -35,7 +35,7 @@ sudo sysctl net.bridge.bridge-nf-call-iptables=1
 
 # 启动kubelet
 sudo systemctl start kubelet
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --service-node-port-range=1-65535
 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config

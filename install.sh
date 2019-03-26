@@ -10,8 +10,6 @@ yum-config-manager \
   
 yum install docker-ce docker-ce-cli containerd.io -y
 
-systemctl enable docker && systemctl start docker
-
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -32,9 +30,14 @@ sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 yum install -y kubelet kubeadm kubectl
 
 # 部署 docker
-sudo systemctl enable docker && systemctl start docker
 sudo systemctl daemon-reload
 sudo systemctl enable kubelet && systemctl start kubelet
+
+echo "{\
+  \"registry-mirrors\": [\"https://registry.docker-cn.com\"]\
+}" > /etc/docker/daemon.json
+
+sudo systemctl enable docker && systemctl start docker
 
 sudo kubeadm config images list |sed -e 's/^/docker pull /g' -e 's#k8s.gcr.io#docker.io/mirrorgooglecontainers#g' | sh -x
 sudo docker images |grep mirrorgooglecontainers |awk '{print "docker tag",$1":"$2,$1":"$2}' |sed -e 's/docker\.io\/mirrorgooglecontainers/k8s.gcr.io/2' |sh -x
